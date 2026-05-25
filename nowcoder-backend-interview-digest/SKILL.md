@@ -1,6 +1,6 @@
 ---
 name: nowcoder-backend-interview-digest
-description: Crawl and summarize Nowcoder interview-experience posts for big-tech backend, server-side, AI backend, Agent development, and platform development roles, then send the digest to Feishu when a webhook is available. Use when Codex needs to collect latest Nowcoder posts, filter Alibaba/Tencent/ByteDance/Baidu/Meituan/JD/PDD/Kuaishou/NetEase/Xiaomi/Ant backend interview questions, choose high-quality questions, and complete the Feishu notification in the same workflow.
+description: Crawl and summarize Nowcoder interview-experience posts for big-tech backend, server-side, AI backend, Agent development, and platform development roles, then send the digest to Feishu using this skill's bundled webhook sender. Use when Codex needs one integrated workflow to collect latest Nowcoder posts, filter Alibaba/Tencent/ByteDance/Baidu/Meituan/JD/PDD/Kuaishou/NetEase/Xiaomi/Ant backend interview questions, choose high-quality questions, and deliver the Feishu notification.
 ---
 
 # Nowcoder Backend Interview Digest
@@ -9,7 +9,7 @@ description: Crawl and summarize Nowcoder interview-experience posts for big-tec
 
 Collect recent Nowcoder interview-experience posts in time order, keep big-tech backend/platform/AI-backend candidates, select high-signal questions, and send a Feishu study digest when a webhook is available.
 
-This skill is a workflow skill. It coordinates with `web-access` for browsing Nowcoder and with `feishu-webhook-message` for delivery. Treat "crawl/summarize interview questions" and "send to Feishu" as one synchronous workflow unless the user explicitly says not to send.
+This skill is a workflow skill. It coordinates with `web-access` for browsing Nowcoder and uses its bundled `scripts/send_feishu_message.py` for delivery. Treat "crawl/summarize interview questions" and "send to Feishu" as one synchronous workflow unless the user explicitly says not to send.
 
 ## References
 
@@ -19,6 +19,7 @@ Load these only when needed:
 - `references/role-keywords.md`: included and excluded role keywords.
 - `references/quality-rules.md`: question scoring and filtering rules.
 - `references/feishu-template.md`: final message format.
+- `scripts/send_feishu_message.py`: bundled Feishu/Lark webhook sender.
 
 ## Default Output Target
 
@@ -49,7 +50,7 @@ Unless the user overrides it:
 7. Score questions with `references/quality-rules.md`.
 8. For each selected post, pick the top `3` questions. Rewrite lightly for clarity, but do not invent details.
 9. Format the result with `references/feishu-template.md`.
-10. Immediately invoke `feishu-webhook-message` or its script when a webhook is available. This is part of the normal completion path, not a separate follow-up task.
+10. Immediately invoke this skill's bundled `scripts/send_feishu_message.py` when a webhook is available. This is part of the normal completion path, not a separate follow-up task.
 11. Close any browser tabs created for the task.
 12. Report the selected post count, question count, and Feishu delivery status. Avoid echoing full webhook URLs.
 
@@ -85,7 +86,16 @@ Do not copy full posts. Extract only short question descriptions and paraphrase 
 Default behavior:
 
 1. Generate the final message text first.
-2. Use the `feishu-webhook-message` skill if available.
+2. Use this skill's bundled sender:
+
+   ```bash
+   python3 /Users/awei/.codex/skills/nowcoder-backend-interview-digest/scripts/send_feishu_message.py \
+     --webhook "$FEISHU_WEBHOOK_URL" \
+     --text "$DIGEST_TEXT"
+   ```
+
+   The sender also accepts `FEISHU_WEBHOOK_URL` and optional `FEISHU_WEBHOOK_SECRET` environment variables.
+
 3. Send one concise text message unless the message would be too long; if too long, split by company/post.
 4. Confirm Feishu API success before claiming delivery.
 5. If delivery fails, return the error summary and keep the generated digest in the response so the user can retry.

@@ -19,7 +19,7 @@
 4. 打开候选帖子详情页，提取公司、岗位、轮次、时间、链接和问题。
 5. 按质量规则筛选问题。
 6. 默认输出 `3 篇帖子 × 每篇 3 题 = 9 题`。
-7. 生成飞书消息格式，并在有 webhook 时立即联动 `feishu-webhook-message` 发送。
+7. 生成飞书消息格式，并在有 webhook 时立即使用本 skill 自带脚本发送。
 
 ## 默认公司范围
 
@@ -118,6 +118,8 @@ nowcoder-backend-interview-digest/
 ├── SKILL.md
 ├── agents/
 │   └── openai.yaml
+├── scripts/
+│   └── send_feishu_message.py
 └── references/
     ├── company-keywords.md
     ├── feishu-template.md
@@ -132,9 +134,8 @@ nowcoder-backend-interview-digest/
 建议同时安装：
 
 - `web-access`：访问牛客、读取动态页面、使用浏览器登录态
-- `feishu-webhook-message`：把整理好的复习清单发送到飞书群机器人
 
-如果明确不发送飞书，只输出 Markdown/文本，也可以不安装飞书 skill。
+飞书发送能力已经内置在本 skill 的 `scripts/send_feishu_message.py` 中，不再需要额外安装 `feishu-webhook-message`。
 
 ## 使用示例
 
