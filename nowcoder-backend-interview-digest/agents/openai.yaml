@@ -1,0 +1,4 @@
+interface:
+  display_name: "Nowcoder Backend Digest"
+  short_description: "Digest big-tech backend Nowcoder posts."
+  default_prompt: "爬取牛客大厂后端面经并整理成飞书复习清单。"
