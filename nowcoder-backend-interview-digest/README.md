@@ -147,6 +147,10 @@ nowcoder-backend-interview-digest/
 https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
+如果还没有创建飞书群机器人，可以先参考飞书官方文档：
+
+https://www.feishu.cn/content/7271149634339422210
+
 最简单的方式是在 skill 目录里复制一份本地配置文件：
 
 ```bash
