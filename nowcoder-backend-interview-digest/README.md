@@ -118,6 +118,8 @@ nowcoder-backend-interview-digest/
 ├── SKILL.md
 ├── agents/
 │   └── openai.yaml
+├── config/
+│   └── feishu-webhook.local.env.example
 ├── scripts/
 │   └── send_feishu_message.py
 └── references/
@@ -145,7 +147,28 @@ nowcoder-backend-interview-digest/
 https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
-推荐用环境变量配置，不要写进 GitHub 仓库：
+最简单的方式是在 skill 目录里复制一份本地配置文件：
+
+```bash
+cd ~/.codex/skills/nowcoder-backend-interview-digest
+cp config/feishu-webhook.local.env.example config/feishu-webhook.local.env
+```
+
+然后编辑：
+
+```text
+config/feishu-webhook.local.env
+```
+
+把里面的：
+
+```text
+FEISHU_WEBHOOK_URL=https://open.feishu.cn/open-apis/bot/v2/hook/REPLACE_ME
+```
+
+替换成你的真实飞书机器人 webhook URL。以后使用本 skill 抓取面经时，就会自动发送飞书。
+
+也可以用环境变量配置：
 
 ```bash
 export FEISHU_WEBHOOK_URL="https://open.feishu.cn/open-apis/bot/v2/hook/REPLACE_ME"
@@ -161,11 +184,10 @@ export FEISHU_WEBHOOK_SECRET="REPLACE_SECRET"
 
 ```bash
 python3 ~/.codex/skills/nowcoder-backend-interview-digest/scripts/send_feishu_message.py \
-  --webhook "$FEISHU_WEBHOOK_URL" \
   --text "测试消息：Nowcoder digest skill 已配置飞书发送。"
 ```
 
-配置后，使用本 skill 抓取面经时会自动整理并发送飞书。若没有配置 webhook，skill 会输出待发送文本，并提示需要配置。
+真实的 `config/feishu-webhook.local.env` 已被 `.gitignore` 忽略，不要提交到仓库。若没有配置 webhook，skill 会输出待发送文本，并提示需要配置。
 
 ## 使用示例
 

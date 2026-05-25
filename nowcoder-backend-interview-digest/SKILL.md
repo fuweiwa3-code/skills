@@ -20,6 +20,7 @@ Load these only when needed:
 - `references/quality-rules.md`: question scoring and filtering rules.
 - `references/feishu-template.md`: final message format.
 - `scripts/send_feishu_message.py`: bundled Feishu/Lark webhook sender.
+- `config/feishu-webhook.local.env`: optional local webhook config file users can edit after copying from `config/feishu-webhook.local.env.example`.
 
 ## Default Output Target
 
@@ -38,9 +39,19 @@ Find the Feishu webhook in this order:
 
 1. A webhook URL explicitly provided by the user in the current conversation.
 2. The `FEISHU_WEBHOOK_URL` environment variable.
-3. A local secret/config source explicitly named by the user.
+3. The skill-local `config/feishu-webhook.local.env` file.
+4. A local secret/config source explicitly named by the user.
 
-For signed Feishu bots, use `FEISHU_WEBHOOK_SECRET` or an explicitly provided secret. Never write webhook URLs or secrets into repository files.
+For signed Feishu bots, use `FEISHU_WEBHOOK_SECRET`, `config/feishu-webhook.local.env`, or an explicitly provided secret. Never write real webhook URLs or secrets into tracked repository files.
+
+To configure by editing the skill folder:
+
+```bash
+cd /Users/awei/.codex/skills/nowcoder-backend-interview-digest
+cp config/feishu-webhook.local.env.example config/feishu-webhook.local.env
+```
+
+Then replace `REPLACE_ME` in `config/feishu-webhook.local.env` with the Feishu bot webhook URL.
 
 ## Workflow
 
@@ -100,11 +111,10 @@ Default behavior:
 
    ```bash
    python3 /Users/awei/.codex/skills/nowcoder-backend-interview-digest/scripts/send_feishu_message.py \
-     --webhook "$FEISHU_WEBHOOK_URL" \
      --text "$DIGEST_TEXT"
    ```
 
-   The sender also accepts `FEISHU_WEBHOOK_URL` and optional `FEISHU_WEBHOOK_SECRET` environment variables.
+   The sender automatically reads `config/feishu-webhook.local.env`, and also accepts `--webhook`, `FEISHU_WEBHOOK_URL`, and optional `FEISHU_WEBHOOK_SECRET`.
 
 3. Send one concise text message unless the message would be too long; if too long, split by company/post.
 4. Confirm Feishu API success before claiming delivery.

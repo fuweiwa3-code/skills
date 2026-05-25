@@ -13,6 +13,11 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from pathlib import Path
+
+
+SKILL_DIR = Path(__file__).resolve().parents[1]
+LOCAL_CONFIG = SKILL_DIR / "config" / "feishu-webhook.local.env"
 
 
 def sign(timestamp: str, secret: str) -> str:
@@ -21,10 +26,35 @@ def sign(timestamp: str, secret: str) -> str:
     return base64.b64encode(digest).decode("utf-8")
 
 
+def read_local_config() -> dict[str, str]:
+    values: dict[str, str] = {}
+    if not LOCAL_CONFIG.exists():
+        return values
+    for line in LOCAL_CONFIG.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and value and "REPLACE_" not in value:
+            values[key] = value
+    return values
+
+
 def parse_args() -> argparse.Namespace:
+    local_config = read_local_config()
     parser = argparse.ArgumentParser(description="Send a Feishu bot text message.")
-    parser.add_argument("--webhook", default=os.environ.get("FEISHU_WEBHOOK_URL"), help="Feishu webhook URL, or set FEISHU_WEBHOOK_URL.")
-    parser.add_argument("--secret", default=os.environ.get("FEISHU_WEBHOOK_SECRET"), help="Optional Feishu bot signing secret, or set FEISHU_WEBHOOK_SECRET.")
+    parser.add_argument(
+        "--webhook",
+        default=os.environ.get("FEISHU_WEBHOOK_URL") or local_config.get("FEISHU_WEBHOOK_URL"),
+        help="Feishu webhook URL. Overrides FEISHU_WEBHOOK_URL and config/feishu-webhook.local.env.",
+    )
+    parser.add_argument(
+        "--secret",
+        default=os.environ.get("FEISHU_WEBHOOK_SECRET") or local_config.get("FEISHU_WEBHOOK_SECRET"),
+        help="Optional Feishu bot signing secret. Overrides FEISHU_WEBHOOK_SECRET and config/feishu-webhook.local.env.",
+    )
     parser.add_argument("--text", required=True, help="Text message to send.")
     parser.add_argument("--timeout", type=float, default=15.0, help="HTTP timeout in seconds.")
     return parser.parse_args()
@@ -33,7 +63,10 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     if not args.webhook:
-        print("error: provide --webhook or FEISHU_WEBHOOK_URL", file=sys.stderr)
+        print(
+            f"error: provide --webhook, FEISHU_WEBHOOK_URL, or configure {LOCAL_CONFIG}",
+            file=sys.stderr,
+        )
         return 2
 
     payload: dict[str, object] = {
