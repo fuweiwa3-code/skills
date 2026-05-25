@@ -1,15 +1,15 @@
 ---
 name: nowcoder-backend-interview-digest
-description: Crawl and summarize Nowcoder interview-experience posts for big-tech backend, server-side, AI backend, Agent development, and platform development roles. Use when Codex needs to collect latest Nowcoder posts, filter Alibaba/Tencent/ByteDance/Baidu/Meituan/JD/PDD/Kuaishou/NetEase/Xiaomi/Ant backend interview questions, choose high-quality questions, and format or send a Feishu digest.
+description: Crawl and summarize Nowcoder interview-experience posts for big-tech backend, server-side, AI backend, Agent development, and platform development roles, then send the digest to Feishu when a webhook is available. Use when Codex needs to collect latest Nowcoder posts, filter Alibaba/Tencent/ByteDance/Baidu/Meituan/JD/PDD/Kuaishou/NetEase/Xiaomi/Ant backend interview questions, choose high-quality questions, and complete the Feishu notification in the same workflow.
 ---
 
 # Nowcoder Backend Interview Digest
 
 ## Overview
 
-Collect recent Nowcoder interview-experience posts in time order, keep big-tech backend/platform/AI-backend candidates, select high-signal questions, and produce a Feishu-ready study digest.
+Collect recent Nowcoder interview-experience posts in time order, keep big-tech backend/platform/AI-backend candidates, select high-signal questions, and send a Feishu study digest when a webhook is available.
 
-This skill is a workflow skill. It coordinates with `web-access` for browsing Nowcoder and with `feishu-webhook-message` when the user wants the digest sent to Feishu.
+This skill is a workflow skill. It coordinates with `web-access` for browsing Nowcoder and with `feishu-webhook-message` for delivery. Treat "crawl/summarize interview questions" and "send to Feishu" as one synchronous workflow unless the user explicitly says not to send.
 
 ## References
 
@@ -27,8 +27,9 @@ Unless the user overrides it:
 - Select `3` posts.
 - Select `3` questions from each post.
 - Produce `9` questions total.
-- Prefer Feishu message text as the final format.
-- If the user supplied or already configured a Feishu webhook, send via `feishu-webhook-message`; otherwise output the Feishu-ready text and ask for the webhook only if sending is explicitly requested.
+- Send the digest to Feishu if a webhook is supplied, configured, or known from the current conversation.
+- If no webhook is available, output the Feishu-ready text and clearly state that delivery is pending webhook configuration.
+- Only skip Feishu delivery when the user explicitly says "不要发送", "只输出", or equivalent.
 
 ## Workflow
 
@@ -48,8 +49,9 @@ Unless the user overrides it:
 7. Score questions with `references/quality-rules.md`.
 8. For each selected post, pick the top `3` questions. Rewrite lightly for clarity, but do not invent details.
 9. Format the result with `references/feishu-template.md`.
-10. If sending to Feishu, invoke `feishu-webhook-message` or its script. Report only success/failure and avoid echoing full webhook URLs.
+10. Immediately invoke `feishu-webhook-message` or its script when a webhook is available. This is part of the normal completion path, not a separate follow-up task.
 11. Close any browser tabs created for the task.
+12. Report the selected post count, question count, and Feishu delivery status. Avoid echoing full webhook URLs.
 
 ## Candidate Selection
 
@@ -80,9 +82,10 @@ Do not copy full posts. Extract only short question descriptions and paraphrase 
 
 ## Feishu Integration
 
-If the user requests sending:
+Default behavior:
 
 1. Generate the final message text first.
 2. Use the `feishu-webhook-message` skill if available.
 3. Send one concise text message unless the message would be too long; if too long, split by company/post.
 4. Confirm Feishu API success before claiming delivery.
+5. If delivery fails, return the error summary and keep the generated digest in the response so the user can retry.
