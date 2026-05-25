@@ -32,6 +32,16 @@ Unless the user overrides it:
 - If no webhook is available, output the Feishu-ready text and clearly state that delivery is pending webhook configuration.
 - Only skip Feishu delivery when the user explicitly says "不要发送", "只输出", or equivalent.
 
+## Webhook Configuration
+
+Find the Feishu webhook in this order:
+
+1. A webhook URL explicitly provided by the user in the current conversation.
+2. The `FEISHU_WEBHOOK_URL` environment variable.
+3. A local secret/config source explicitly named by the user.
+
+For signed Feishu bots, use `FEISHU_WEBHOOK_SECRET` or an explicitly provided secret. Never write webhook URLs or secrets into repository files.
+
 ## Workflow
 
 1. Use `web-access` before any Nowcoder network or browser operation.

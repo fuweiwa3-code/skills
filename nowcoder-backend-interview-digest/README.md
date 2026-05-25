@@ -137,6 +137,36 @@ nowcoder-backend-interview-digest/
 
 飞书发送能力已经内置在本 skill 的 `scripts/send_feishu_message.py` 中，不再需要额外安装 `feishu-webhook-message`。
 
+## 配置飞书 Webhook
+
+飞书 webhook 是群机器人提供的发送地址，格式类似：
+
+```text
+https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
+
+推荐用环境变量配置，不要写进 GitHub 仓库：
+
+```bash
+export FEISHU_WEBHOOK_URL="https://open.feishu.cn/open-apis/bot/v2/hook/REPLACE_ME"
+```
+
+如果飞书机器人开启了签名校验，再配置：
+
+```bash
+export FEISHU_WEBHOOK_SECRET="REPLACE_SECRET"
+```
+
+也可以临时发送测试消息：
+
+```bash
+python3 ~/.codex/skills/nowcoder-backend-interview-digest/scripts/send_feishu_message.py \
+  --webhook "$FEISHU_WEBHOOK_URL" \
+  --text "测试消息：Nowcoder digest skill 已配置飞书发送。"
+```
+
+配置后，使用本 skill 抓取面经时会自动整理并发送飞书。若没有配置 webhook，skill 会输出待发送文本，并提示需要配置。
+
 ## 使用示例
 
 可以这样对 Codex 说：
