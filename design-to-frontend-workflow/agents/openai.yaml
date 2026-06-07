@@ -1,0 +1,5 @@
+interface:
+  display_name: "Design to Frontend Workflow"
+  short_description: "Turn UI direction into validated frontend implementation"
+  brand_color: "#4E817B"
+  default_prompt: "Use $design-to-frontend-workflow to take this UI request from product direction through design and browser validation."
