@@ -1,0 +1,4 @@
+interface:
+  display_name: "技术面试回答评估"
+  short_description: "评估技术面试回答的准确性、完整性与表达质量"
+  default_prompt: "使用 $interview-response-evaluator 评估我的技术面试回答，并根据问题严重程度给出修改建议。"
